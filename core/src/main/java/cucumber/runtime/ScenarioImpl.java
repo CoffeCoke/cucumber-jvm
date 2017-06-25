@@ -5,6 +5,7 @@ import cucumber.api.Scenario;
 import cucumber.api.event.EmbedEvent;
 import cucumber.api.event.WriteEvent;
 import cucumber.runner.EventBus;
+import gherkin.events.PickleEvent;
 import gherkin.pickles.Pickle;
 import gherkin.pickles.PickleTag;
 
@@ -21,12 +22,15 @@ public class ScenarioImpl implements Scenario {
     private final List<Result> stepResults = new ArrayList<Result>();
     private final List<PickleTag> tags;
     private final String scenarioName;
+    private final String scenarioId;
     private final EventBus bus;
 
-    public ScenarioImpl(EventBus bus, Pickle gherkinScenario) {
+    public ScenarioImpl(EventBus bus, PickleEvent pickleEvent) {
         this.bus = bus;
-        this.tags = gherkinScenario.getTags();
-        this.scenarioName = gherkinScenario.getName();
+        Pickle pickle = pickleEvent.pickle;
+        this.tags = pickle.getTags();
+        this.scenarioName = pickle.getName();
+        this.scenarioId = pickleEvent.uri + ":" + Integer.toString(pickle.getLocations().get(0).getLine());
     }
 
     public void add(Result result) {
@@ -74,6 +78,11 @@ public class ScenarioImpl implements Scenario {
     @Override
     public String getName() {
         return scenarioName;
+    }
+
+    @Override
+    public String getId() {
+        return scenarioId;
     }
 
     public Throwable getError() {
