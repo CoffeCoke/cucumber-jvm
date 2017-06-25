@@ -47,8 +47,8 @@ public class JUnitReporterTest {
     }
 
     @Test
-    public void test_step_started_fires_test_started_for_step() {
-        createNonStrictReporter();
+    public void test_step_started_fires_test_started_for_step_when_using_step_notifications() {
+        createNonStrictReporter("--step-notifications");
         PickleStep runnerStep = mockStep();
         PickleRunner pickleRunner = mockPickleRunner(runnerSteps(runnerStep));
         runNotifier = mock(RunNotifier.class);
@@ -116,7 +116,7 @@ public class JUnitReporterTest {
     public void test_step_finished_adds_no_step_exeption_for_skipped_step_without_exception() {
         createNonStrictReporter();
         createDefaultRunNotifier();
-        setUpStepNotifierAndStepErrors();
+        setUpNoStepNotifierAndStepErrors();
         Result result = mockResult(Result.Type.SKIPPED);
 
         jUnitReporter.handleStepResult(mock(TestStep.class), result);
@@ -128,7 +128,7 @@ public class JUnitReporterTest {
     public void test_step_finished_adds_the_step_exeption_for_skipped_step_with_assumption_violated() {
         createNonStrictReporter();
         createDefaultRunNotifier();
-        setUpStepNotifierAndStepErrors();
+        setUpNoStepNotifierAndStepErrors();
         Throwable exception = new AssumptionViolatedException("Oops");
         Result result = mockResult(Result.Type.SKIPPED, exception);
 
@@ -181,7 +181,7 @@ public class JUnitReporterTest {
     public void test_step_finished_adds_the_step_exeption_for_pending_steps() {
         createNonStrictReporter();
         createDefaultRunNotifier();
-        setUpStepNotifierAndStepErrors();
+        setUpNoStepNotifierAndStepErrors();
         Throwable exception = new PendingException();
         Result result = mockResult(Result.Type.PENDING, exception);
 
@@ -234,7 +234,7 @@ public class JUnitReporterTest {
     public void test_step_finished_adds_a_step_exeption_for_undefined_steps() {
         createNonStrictReporter();
         createDefaultRunNotifier();
-        setUpStepNotifierAndStepErrors();
+        setUpNoStepNotifierAndStepErrors();
         TestStep testStep = mockTestStep("XX");
         Result result = mockResult(Result.Type.UNDEFINED);
 
@@ -268,7 +268,7 @@ public class JUnitReporterTest {
     public void test_step_finished_adds_the_step_exeption_for_failed_steps() {
         createNonStrictReporter();
         createDefaultRunNotifier();
-        setUpStepNotifierAndStepErrors();
+        setUpNoStepNotifierAndStepErrors();
         Throwable exception = new PendingException();
         Result result = mockResult(Result.Type.FAILED, exception);
         when(result.getError()).thenReturn(exception);
@@ -510,16 +510,16 @@ public class JUnitReporterTest {
         jUnitReporter.startExecutionUnit(pickleRunner, runNotifier);
     }
 
-    private void createStrictReporter() {
-        createReporter(true);
+    private void createStrictReporter(String... options) {
+        createReporter(true, options);
     }
 
-    private void createNonStrictReporter() {
-        createReporter(false);
+    private void createNonStrictReporter(String... options) {
+        createReporter(false, options);
     }
 
-    private void createReporter(boolean strict) {
-        jUnitReporter = new JUnitReporter(mock(EventBus.class), strict, new JUnitOptions(Collections.<String>emptyList()));
+    private void createReporter(boolean strict, String... options) {
+        jUnitReporter = new JUnitReporter(mock(EventBus.class), strict, new JUnitOptions(asList(options)));
     }
 
     private void setUpStepNotifierAndStepErrors(Description description) {
@@ -527,7 +527,7 @@ public class JUnitReporterTest {
         jUnitReporter.stepErrors = new ArrayList<Throwable>();
     }
 
-    private void setUpStepNotifierAndStepErrors() {
+    private void setUpNoStepNotifierAndStepErrors() {
         jUnitReporter.stepNotifier = new NoTestNotifier();
         jUnitReporter.stepErrors = new ArrayList<Throwable>();
     }

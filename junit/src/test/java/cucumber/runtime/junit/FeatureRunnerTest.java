@@ -39,7 +39,7 @@ public class FeatureRunnerTest {
                 "  Scenario: scenario_2 name\n" +
                 "    Then another second step\n");
 
-        RunNotifier notifier = runFeatureWithNotifier(feature);
+        RunNotifier notifier = runFeatureWithNotifier(feature, "--step-notifications");
 
         InOrder order = inOrder(notifier);
 
@@ -71,7 +71,7 @@ public class FeatureRunnerTest {
                 "      |   x    |   y   |\n" +
                 "      | second | third |\n");
 
-        RunNotifier notifier = runFeatureWithNotifier(feature);
+        RunNotifier notifier = runFeatureWithNotifier(feature, "--step-notifications");
 
         InOrder order = inOrder(notifier);
 
@@ -92,8 +92,8 @@ public class FeatureRunnerTest {
         order.verify(notifier).fireTestFinished(argThat(new DescriptionMatcher("scenario outline name")));
     }
 
-    private RunNotifier runFeatureWithNotifier(CucumberFeature cucumberFeature) throws InitializationError {
-        FeatureRunner runner = createFeatureRunner(cucumberFeature);
+    private RunNotifier runFeatureWithNotifier(CucumberFeature cucumberFeature, String... options) throws InitializationError {
+        FeatureRunner runner = createFeatureRunner(cucumberFeature, options);
         RunNotifier notifier = mock(RunNotifier.class);
         runner.run(notifier);
         return notifier;
@@ -165,7 +165,7 @@ public class FeatureRunnerTest {
 
         );
 
-        FeatureRunner runner = createFeatureRunner(cucumberFeature, "--no-step-notifications");
+        FeatureRunner runner = createFeatureRunner(cucumberFeature);
 
         Description feature = runner.getDescription();
         Description scenarioA = feature.getChildren().get(0);
